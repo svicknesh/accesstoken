@@ -20,5 +20,10 @@ func TestGenerate(t *testing.T) {
 
 	fmt.Println(output)
 
+	// create an incorrect token
+	//len := len(prefix) + len(Separator)
+	//output = output[:len] + "z" + output[len+1:]
+	//fmt.Println(output)
+
 	fmt.Println(IsChecksumOK(prefix, Separator, output))
 }

@@ -27,26 +27,24 @@ func Generate(prefix, separator string, randBytesLen int) (output string, err er
 	}
 	//fmt.Println(randBytes)
 
-	bytes := append(randBytes, genCRC32(randBytes)...)
-	//fmt.Println(bytes)
+	crc32Bytes := genCRC32(append([]byte(prefix+separator), randBytes...)) // append the prefix, separator & random bytes to generate CRC32
 
-	return prefix + separator + base62.EncodeToString(bytes), nil
+	return prefix + separator + base62.EncodeToString(append(randBytes, crc32Bytes...)), nil
 }
 
 // IsChecksumOK - checks if a given input token has a valid checksum
 func IsChecksumOK(prefix, separator, token string) (ok bool) {
 
-	// strip prefix and separator from the token
-	//remainder := token[len(prefix)+len(separator):]
+	// strip prefix and separator from the token and base62 decode the random bytes + CRC32 checksum
 	remainder, err := base62.DecodeString(token[len(prefix)+len(separator):])
 	if nil != err {
 		return // if an error is encountered, we return immediately, the token is definitely invalid
 	}
 
-	randBytesLen := len(remainder) - 6 // 6 bytes is used for checksum
+	randBytesLen := len(remainder) - 6 // random bytes is the total length - 6 bytes which is used for checksum
 	randBytes := remainder[:randBytesLen]
-	givenChecksum := remainder[randBytesLen:] // last 6 bytes is used for checksum
-	generatedChecksum := genCRC32(randBytes)  // last 6 bytes is used for checksum
+	givenChecksum := remainder[randBytesLen:]                                     // last 6 bytes is used for checksum
+	generatedChecksum := genCRC32(append([]byte(prefix+separator), randBytes...)) // generate the checksum using input prefix, separator and obtained random bytes
 
 	return bytes.Equal(givenChecksum, generatedChecksum)
 }
