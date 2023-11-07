@@ -22,7 +22,7 @@ if nil != err {
     return
 }
 
-if !accesstoken.IsChecksumOK(prefix, accesstoken.Separator) {
+if !accesstoken.IsChecksumOK(prefix, accesstoken.Separator, token) {
     return
 }
 
